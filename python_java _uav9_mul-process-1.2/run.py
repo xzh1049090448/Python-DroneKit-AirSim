@@ -45,7 +45,7 @@ class Run:
     def play(self, x1, y1):
         point = LocationGlobalRelative(x1, y1, 40)
         self.vehicle.simple_goto(point)
-        for i in range(0, 2):
+        for i in range(0, 1):
             if self.judge_pos(x1, y1, self.vehicle):
                 break
             time.sleep(1)
@@ -87,8 +87,8 @@ class Run:
     def receive_pos(self, num):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(('127.0.0.1', 6666))
+        first = True
         while True:
-
             buf = sock.recv(4096)
             # print(buf)
             if not buf or len(buf) == 0:
@@ -105,11 +105,14 @@ class Run:
                     x1 = -(self.vehicle.location.global_relative_frame.lat + 35.3632609) * 40000
                     y1 = -(self.vehicle.location.global_relative_frame.lon - 149.165230) * 40000
                     str1 = str(x1) + ' ' + str(y1)
-
+                    if first:
+                        for i in range(0, 10):
+                            print("first flying")
+                            time.sleep(1)
+                        first = False
                     print(str1)
                     sock.send(bytes(str1, encoding="utf8"))
 
             except ValueError:
                 pass
-
         sock.close()
