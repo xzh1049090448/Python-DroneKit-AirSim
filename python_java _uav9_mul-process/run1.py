@@ -7,8 +7,8 @@ import math
 class Run:
 
     def __init__(self, id):
-        connection_string = '127.0.0.1:14551'
-        self.vehicle = connect(connection_string, wait_ready=True)
+        self.connection_string = '127.0.0.1:14551'
+        self.vehicle = connect(self.connection_string, wait_ready=True)
         self.id = id
 
     def start(self):
