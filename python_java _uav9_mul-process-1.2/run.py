@@ -12,16 +12,17 @@ class Run:
 
     def start(self):
         self.vehicle = connect(self.connection_string, wait_ready=True)
-        self.arm_and_takeoff(40)
+        self.arm_and_takeoff(15)
         self.receive_pos(self.id)
 
     def arm_and_takeoff(self, aTargetAltitude):
+        start_time = time.time()
         """武装无人机并飞行至指定高度"""
         # 进行起飞前检查
-        print("Basic pre-arm checks")
+        # print("Basic pre-arm checks")
 
         while not self.vehicle.is_armable:
-            print(" Waiting Copter"  " for vehicle to initialise...")
+            # print(" Waiting Copter"  " for vehicle to initialise...")
             time.sleep(1)
 
         self.vehicle.armed = True
@@ -29,18 +30,23 @@ class Run:
         self.vehicle.mode = VehicleMode("GUIDED")
 
         while not self.vehicle.armed:
-            print(" Waiting for arming...")
+            # print(" Waiting for arming...")
             time.sleep(1)
-
-        print("Taking off!")
-        aTargetAltitude = aTargetAltitude + 3 * self.id
+        time1 = time.time()
+        # print("Taking off!")
+        aTargetAltitude = aTargetAltitude + 2 * self.id
         self.vehicle.simple_takeoff(aTargetAltitude)
 
         while True:
             if self.judge_altitude(aTargetAltitude):
                 break
             time.sleep(1)
-        self.vehicle.airspeed = 4
+        self.vehicle.airspeed = 7
+        end_time = time.time()
+        if self.id == 1:
+            print("检查时间：", time1 - start_time, "s")
+            print("飞至起始点时间：", end_time - time1, "s")
+            print("总时间：", end_time - start_time, "s")
 
     def play(self, x1, y1):
         point = LocationGlobalRelative(x1, y1, 40)
@@ -74,7 +80,7 @@ class Run:
     def judge_pos(self, x, y, vehicle1):
         """注意经纬度的+-"""
         sign = 0
-        print(self.id)
+        # print(self.id)
         if self.distance(x, y, vehicle1.location.global_relative_frame.lat,
                          vehicle1.location.global_relative_frame.lon) < 1.1:
             sign = 1
@@ -105,12 +111,12 @@ class Run:
                     x1 = -(self.vehicle.location.global_relative_frame.lat + 35.3632609) * 40000
                     y1 = -(self.vehicle.location.global_relative_frame.lon - 149.165230) * 40000
                     str1 = str(x1) + ' ' + str(y1)
-                    if first:
-                        for i in range(0, 10):
-                            print("first flying")
+                    if first and self.id == 1:
+                        for i in range(0, 8):
+                            # print("first flying")
                             time.sleep(1)
                         first = False
-                    print(str1)
+                    # print(str1)
                     sock.send(bytes(str1, encoding="utf8"))
 
             except ValueError:
